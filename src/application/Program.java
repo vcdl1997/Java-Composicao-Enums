@@ -1,131 +1,74 @@
 package application;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-import entities.Apartamento;
-import entities.Condominio;
-import entities.Morador;
-import entities.Proprietario;
-import entities.enums.StatusApartamento;
+import entities.Department;
+import entities.HourContract;
+import entities.Worker;
+import entities.enums.WorkerLevel;
 
 public class Program {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException{
 		
 		Locale.setDefault(Locale.US);
 		
 		Scanner scan = new Scanner(System.in);
 		
-		System.out.println("Digite o nome do Condominio: ");
-		String nomeCondominio = scan.nextLine();
+		System.out.println("Enter department's name: ");
+		Department department = new Department(scan.nextLine());
 		
-		System.out.println("Digite o endereço do Condominio: ");
-		String enderecoCondominio = scan.nextLine();
+		System.out.println("Enter worker data: ");
+		System.out.println("Name: ");
+		String workerName = scan.nextLine();
 		
-		System.out.println("Deseja cadastrar os apartamentos ? Y/N");
-		char cadastrarApartamentos = scan.next().charAt(0);
+		System.out.println("Level: ");
+		WorkerLevel level = WorkerLevel.valueOf(scan.next());
+		scan.nextLine();
 		
-		Condominio condominio;
-		List<Apartamento> apartamentos = new ArrayList<>();
+		System.out.println("Base Salary: ");
+		Double baseSalary = scan.nextDouble();
 		
-		switch(cadastrarApartamentos) {
-			case 'y': case 'Y': 
-				char opcao;
-				
-				do {
-					Apartamento apartamento;
-					List<Morador> moradores = new ArrayList<>();
-					
-					System.out.println("Informe o numero:");
-					Integer numeroApto = scan.nextInt();
-					
-					System.out.println("Informe a metragem:");
-					Integer metragem = scan.nextInt();
-					
-					System.out.println("Informe a número de quartos:");
-					Integer quartos = scan.nextInt();
-					
-					System.out.println("Informe a número de Suítes:");
-					Integer suites = scan.nextInt();
-					
-					System.out.println("Informe a número de banheiros:");
-					Integer banheiros = scan.nextInt();
-					
-					System.out.println("Informe a número de vagas:");
-					Integer vagas = scan.nextInt();
-					
-					System.out.println("É mobiliado ? Y/N");
-					Boolean ehMobiliado = 
-						scan.next().charAt(0) == 'y' || scan.next().charAt(0) == 'Y' ? true : false;
-					
-					System.out.println("Informe o status do Apartamento: ");
-					System.out.println("1 - OCUPADO");
-					System.out.println("2 - A VENDA");
-					System.out.println("3 - ALUGA-SE");
-					StatusApartamento statusApto;
-					
-					switch (scan.nextInt()) {
-						case 2: statusApto = StatusApartamento.A_VENDA; break;
-						case 3: statusApto = StatusApartamento.ALUGA_SE; break;
-						default: statusApto = StatusApartamento.OCUPADO; break;
-					};
-					
-					System.out.println(statusApto);
-					
-					System.out.println("Informe o nome do proprietário");
-					String nomeProprietario = scan.next();
-					scan.nextLine();
-					
-					System.out.println("Informe o cpf do proprietário");
-					Long cpfProprietario = scan.nextLong();
-					
-					System.out.println("Informe o e-mail do proprietário");
-					String emailProprietario = scan.next();
-					scan.nextLine();
-					
-					System.out.println("O proprietário reside no apartamento ? Y/N");
-					Boolean ehMorador = 
-						scan.next().charAt(0) == 'y' || scan.next().charAt(0) == 'Y' ? true : false;
-					
-					Proprietario proprietario = new Proprietario(nomeProprietario, cpfProprietario, emailProprietario, ehMorador);
-					
-					System.out.println("Deseja cadastrar outros moradores no apartamento ? Y/N");
-					Boolean cadastraMoradores = 
-							scan.next().charAt(0) == 'y' || scan.next().charAt(0) == 'Y' ? true : false;
-					
-					if(cadastraMoradores) {
-						System.out.println("Quantos moradores serão cadastrados ?");
-						Integer qtdMoradores = scan.nextInt();
-						
-						for(int i = 0; i < qtdMoradores; i++) {
-							System.out.println("Digite o nome do morador");
-							String nomeMorador = scan.next();
-							scan.nextLine();
-							
-							System.out.println("Digite o cpf do morador");
-							Long cpfMorador = scan.nextLong();
-							
-							moradores.add(new Morador(nomeMorador, cpfMorador));
-						}
-					}
-					
-					apartamento = new Apartamento(numeroApto, metragem, quartos, suites, banheiros, vagas, ehMobiliado, proprietario, moradores, statusApto);
-					apartamentos.add(apartamento);
-					
-					System.out.println("Deseja cadastrar outro apartamento ? Y/N");
-					opcao = scan.next().charAt(0);
-				} while (opcao == 'y' || opcao == 'Y');
-				
-				condominio = new Condominio(nomeCondominio, enderecoCondominio, apartamentos);
-			break;
+		List<HourContract> contracts = new ArrayList<>();
+		
+		System.out.println("How many contracts to this worker? ");
+		Integer quantityWorkers = scan.nextInt();
+		
+		SimpleDateFormat stdf = new SimpleDateFormat("dd/MM/yyyy");
+		
+		for(int i = 0; i < quantityWorkers; i++) {
+			System.out.println("Enter contract #" + (i+1) + " data:");
+			System.out.println("Date (DD/MM/YYYY)");
+			Date contractDate = stdf.parse(scan.next());
+			scan.nextLine();
 			
-			default: condominio = new Condominio(nomeCondominio, enderecoCondominio, apartamentos); break;
+			System.out.println("Value per hour:");
+			Double valuePerHour = scan.nextDouble();
+			
+			System.out.println("Duration (hours):");
+			Integer durationHours = scan.nextInt();
+			
+			contracts.add(new HourContract(contractDate, valuePerHour, durationHours));
 		}
 		
-		condominio.reportApartamentos();
+		Worker worker = new Worker(workerName, level, baseSalary, department, contracts);
+		
+		System.out.println("Enter month and year to calculate income (MM/YYYY)");
+		String income = scan.next();
+		scan.nextLine();
+		String[] period = income.split("/");
+		Integer month = Integer.parseInt(period[0]);
+		Integer year = Integer.parseInt(period[1]);
+		
+		System.out.println("Name: " + worker.getName());
+		System.out.println("Department: " + worker.getDepartment().getName());
+		System.out.println("Income for " + income + ": " + String.format("%.2f", worker.income(year, month)));
 		
 		scan.close();
 	}
